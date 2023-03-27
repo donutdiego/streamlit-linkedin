@@ -10,8 +10,6 @@ st.set_page_config(
 
 # \\\ Functions /// #
 
-
-
 @st.cache_data
 def load_data(csv):
     df = pd.read_csv(csv, skiprows=3)
@@ -124,8 +122,8 @@ with st.container():
     left, middle, right = st.columns((3, 3, 3))
     with left:
         csv_file = st.file_uploader('upload your file here: ')
-        df = loading_data(csv_file)
-
+        if csv_file is not None:
+            df = load_data(csv_file)
 
 treemap = treemap_px(df)
 
