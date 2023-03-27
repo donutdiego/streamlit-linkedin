@@ -88,7 +88,7 @@ notice.write("""
 @st.cache_data
 def loading_data(csv):
     if csv is not None:
-        df = pd.read_csv('data/connections.csv', skiprows=3)
+        df = pd.read_csv(csv, skiprows=3)
         df['Connected On'] = pd.to_datetime(df['Connected On'])
         df['Year'] = df['Connected On'].dt.year
         df['Year'] = df['Year'].apply(str)
@@ -96,7 +96,7 @@ def loading_data(csv):
         df['Position'] = df['Position'].fillna('No Position Data')
         # apply formatting
     else:
-        df = pd.read_csv(csv, skiprows=3)
+        df = pd.read_csv('data/connections.csv', skiprows=3)
         df['Connected On'] = pd.to_datetime(df['Connected On'])
         df['Year'] = df['Connected On'].dt.year
         df['Year'] = df['Year'].apply(str)
