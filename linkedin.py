@@ -122,7 +122,7 @@ with st.container():
     left, middle, right = st.columns((3, 3, 3))
     with left:
         csv_file = st.file_uploader('upload your file here: ')
-        df = loading_data(csf_file)
+        df = loading_data(csv_file)
 
 treemap = treemap_px(df)
 
