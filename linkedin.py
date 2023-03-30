@@ -8,19 +8,29 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed")
 
+# \\\ Sidebar /// #
+
+options = {
+    "BuPu": "px.colors.sequential.BuPu",
+    "BuGn": "px.colors.sequential.BuGn",
+}
+
+with st.sidebar:
+    color_scheme = st.selectbox("change the feel of the visuals!", ("px.colors.sequential.BuGn","px.colors.sequential.BuPu"))
+
 # \\\ Functions /// #
 
 @st.cache_data
-def load_data(csv):
-    if csv is not None:
+def load_data(csv, dataset):
+    if csv is not None: # if file is uploaded
         df = pd.read_csv(csv, skiprows=3)
         df['Connected On'] = pd.to_datetime(df['Connected On'])
         df['Year'] = df['Connected On'].dt.year
         df['Company'] = df['Company'].fillna('No Company Data')
         df['Position'] = df['Position'].fillna('No Position Data')
 
-    else:
-        df = pd.read_csv('data/connections.csv', skiprows=3)
+    else: # if no file is uploaded or removed
+        df = pd.read_csv(f'data/{dataset}.csv', skiprows=3)
         df['Connected On'] = pd.to_datetime(df['Connected On'])
         df['Year'] = df['Connected On'].dt.year
         df['Company'] = df['Company'].fillna('No Company Data')
@@ -41,7 +51,7 @@ def bar_px(df):
     text_auto=True,
     color='count',
     height=200,
-    color_continuous_scale=px.colors.sequential.Purples,
+    color_continuous_scale=px.colors.sequential.BuGn,
     labels={'year':'','count':''}
     )
     bar.update_traces(textfont_size=14, textposition='outside', 
@@ -62,15 +72,13 @@ def bar_px(df):
     return bar 
 
 @st.cache_data
-def treemap_px(df):
+def treemap_px(df, px_height):
     fig = px.treemap(
     df,
+    height=px_height,
     path=['Company','Position'],
-    width=1600, 
-    height=1200,
-    hover_name=px.Constant('Your connections'),
     color='Company',
-    color_discrete_sequence=px.colors.sequential.algae
+    color_discrete_sequence=px.colors.sequential.Redor 
     )
     fig.update_layout(margin=dict(t=0, l=0, r=0, b=0), 
                     font=dict(family='Arial', size=14),
@@ -81,6 +89,24 @@ def treemap_px(df):
                     hovertemplate='%{value} Connections <br> at %{label}')
     
     return fig
+
+@st.cache_data
+def polar_px(df):
+    month = df['Month'].value_counts().reset_index()
+    month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+    polar = px.bar_polar(
+    month,
+    theta='index',
+    r='Month',
+    color='Month',
+    template='plotly_dark',
+    color_discrete_map=px.colors.sequential.BuPu,
+    category_orders={'index':month_order}
+)
+    return polar
+
+
 
 # \\\ Data Collection Notice /// #
 
@@ -98,6 +124,7 @@ with st.container():
             here is post by Streamlit that explains this as well.
             """)
 
+
 st.title("linkedin visual: ")
 
 with st.container():
@@ -105,7 +132,7 @@ with st.container():
     with left:
         st.subheader("step 1: ")
     with middle:
-        st.subheader("middle: ")
+        st.subheader(color_scheme)
     with right:
         right.subheader("testing:")
 
@@ -114,17 +141,21 @@ st.write("##")
 with st.container():
     left, middle, right = st.columns((3, 3, 3))
     with left:
+        dataset = st.selectbox('check out:', ('diego','alberto'))
+    with middle:
+        tree_height = st.slider("change the pixel height of the visual", 500, 2000, 500)
+    with right:
         csv_file = st.file_uploader('upload your file here 👇 ')
-        df = load_data(csv_file)
+        df = load_data(csv_file, dataset)
 
-treemap = treemap_px(df)
+treemap = treemap_px(df, tree_height)
 
 with st.container():
     st.plotly_chart(treemap, use_container_width=True)
 
 st.write("##")
 
-st.subheader("broken down by year: ")
+st.subheader("break it down! 🤸")
 
 bar = bar_px(df)
 
