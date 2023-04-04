@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from PIL import Image
 
 st.set_page_config(
     page_title="Visualize Your Connections", 
@@ -8,18 +9,15 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed")
 
+instructions = Image.open('images/inst.png')
+
 # \\\ Sidebar /// #
 
-colors = {
-    "px.colors.sequential.Aggrnyl" : "value 3",
-    "px.colors.sequential.algae" : "value",
-}
+algae = px.colors.sequential.algae
+blues = px.colors.sequential.Blues
 
-def values(option):
-    return colors[option]
-
-with st.sidebar:
-    color_scheme = st.selectbox("Select option", options=colors, format_func=values)
+#with st.sidebar:
+#    color_scheme = st.selectbox("select color of visuals: ", ("coming soon"))
 
 # \\\ Functions /// #
 
@@ -54,7 +52,7 @@ def bar_px(df):
     text_auto=True,
     color='count',
     height=200,
-    color_continuous_scale=px.colors.sequential.Redor,
+    color_continuous_scale=px.colors.sequential.Aggrnyl,
     labels={'year':'','count':''}
     )
     bar.update_traces(textfont_size=14, textposition='outside', 
@@ -63,12 +61,14 @@ def bar_px(df):
     bar.update_layout(margin=dict(t=0, l=0, r=0, b=0),
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)')
+    
+    bar.update_coloraxes(showscale=False)
 
-    bar.update_xaxes(color='white',
+    bar.update_xaxes(color='#03b5aa',
                     gridcolor='white',
                     linecolor='rgba(0,0,0,0)')
 
-    bar.update_yaxes(color='white',
+    bar.update_yaxes(color='#03b5aa',
                     linecolor='rgba(0,0,0,0)',
                     dtick=1)
 
@@ -81,7 +81,7 @@ def treemap_px(df, px_height):
     height=px_height,
     path=['Company','Position'],
     color='Company',
-    color_discrete_sequence=px.colors.sequential.Redor
+    color_discrete_sequence=px.colors.sequential.Aggrnyl
     )
     fig.update_layout(margin=dict(t=0, l=0, r=0, b=0), 
                     font=dict(family='Arial', size=14),
@@ -89,67 +89,74 @@ def treemap_px(df, px_height):
 
     fig.update_traces(root_color='rgba(0,0,0,0)',  # to match background color of app
                     marker=dict(cornerradius=10),
-                    hovertemplate='%{value} Connections <br> at %{label}')
+                    hovertemplate='%{value} Connection(s) <br> at %{label}')
     
     return fig
 
 @st.cache_data
 def polar_px(df):
+    df['Month'] = df['Connected On'].dt.month_name()
     month = df['Month'].value_counts().reset_index()
+    month = month.rename(columns={'index':'month','Month':'count'})
     month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-    polar = px.bar_polar(
+    chart = px.bar_polar(
     month,
-    theta='index',
-    r='Month',
-    color='Month',
+    theta='month',
+    r='count',
+    color='count',
     template='plotly_dark',
     color_discrete_map=px.colors.sequential.Redor,
-    category_orders={'index': month_order}
-)
-    return polar
+    category_orders={'month': month_order})
 
-
-
-st.title("linkedin visual: ")
+    return chart
 
 with st.container():
-    left, middle, right = st.columns(3)
+    st.title("my LinkedIn connections: ")
+    st.subheader("the visual: ")
+    st.write("after finding out it was possible to export LinkedIn connections data, I immediately started to brainstorm a project to visualize the data")
+
+with st.container():
+    left, right = st.columns((3, 2))
     with left:
-        st.subheader("step 1: ")
-    with middle:
-        st.subheader("important stuff: ")
-        notice = st.expander("⚠️please read⚠️")
+        st.subheader("important notice")
+        notice = st.expander("about the uploaded data:")
         notice.write(""" 
-            you may be asking, "are you collecting my data without my consent?"
+            you may be asking - "are you collecting my data without my consent?"
             
             the answer is simply, no.
 
             after you close this tab or remove your uploaded file, all information is gone and not kept in any way.
 
-            here is post by Streamlit that explains this as well.
+            this [post by Streamlit](https://docs.streamlit.io/knowledge-base/using-streamlit/where-file-uploader-store-when-deleted) explains this as well
             """)
-        hello = st.expander("steps")
-        hello.write("how to get data")
-    with right:
-        right.subheader(color_scheme)
+        left.subheader("how to")
+        how_to = st.expander("steps to get your own data: ")
+        how_to.write("""
+        [click on this link](https://www.linkedin.com/mypreferences/d/download-my-data) and select to export your connections data
 
-st.write("##")
+        you will receive an email with a zipped folder containing your connections data
 
-with st.container():
-    left, middle, right = st.columns((3, 3, 3))
-    with left:
-        dataset = st.selectbox('check out:', ('diego','alberto'))
-    with middle:
-        tree_height = st.slider("change the pixel height of the visual", 500, 2000, 1000)
+        extract the file and then you will be ready to visualize your connections!  
+        """)
+        how_to.image(instructions, width=500, use_column_width='auto', output_format='PNG')
     with right:
+        st.subheader("")
+        right.write("")
+        dataset = st.selectbox('choose a sample dataset:', ('diego','alberto'))
         csv_file = st.file_uploader('upload your file here 👇 ')
+        tree_height = st.slider("change the height of the visual 🔍", 500, 2000, 1000)
         df = load_data(csv_file, dataset)
+        treemap = treemap_px(df, tree_height)
 
-treemap = treemap_px(df, tree_height)
+st.write("##")        
+
+# \\\ Treemap /// #
 
 with st.container():
     st.plotly_chart(treemap, use_container_width=True)
+
+# \\\ Bar Chart /// #
 
 st.write("##")
 
@@ -158,4 +165,5 @@ st.subheader("break it down! 🤸")
 bar = bar_px(df)
 
 with st.container():
-    st.plotly_chart(bar, use_container_width=True)
+        st.write("by year:")
+        st.plotly_chart(bar, use_container_width=True)
