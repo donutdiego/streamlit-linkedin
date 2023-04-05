@@ -56,7 +56,7 @@ def bar_px(df):
     labels={'year':'','count':''}
     )
     bar.update_traces(textfont_size=14, textposition='outside', 
-                    marker_line_width=0, hovertemplate='%{x} connections for %{y}.')
+                    marker_line_width=0, hovertemplate=None, hoverinfo='skip')
 
     bar.update_layout(margin=dict(t=0, l=0, r=0, b=0),
                     plot_bgcolor='rgba(0,0,0,0)',
@@ -111,10 +111,18 @@ def polar_px(df):
 
     return chart
 
+# \\\ Header /// #
+
 with st.container():
-    st.title("my LinkedIn connections: ")
+    st.title("LinkedIn connections")
     st.subheader("the visual: ")
-    st.write("after finding out it was possible to export LinkedIn connections data, I immediately started to brainstorm a project to visualize the data")
+    st.write("""
+    after finding out it was possible to export my LinkedIn connections data, I immediately started to brainstorm a project to visualize the data
+
+    my goal was to make interactive by applying some of Streamlit's features such as the slider and file uploader widgets
+
+    big thanks to my brother, [Alberto Reyes](https://www.linkedin.com/in/albertoreyes2021/), for letting me use his data and connect with me on my [LinkedIn](https://www.linkedin.com/in/diego-reyes10/)
+    """)
 
 with st.container():
     left, right = st.columns((3, 2))
@@ -122,32 +130,29 @@ with st.container():
         st.subheader("important notice")
         notice = st.expander("about the uploaded data:")
         notice.write(""" 
-            you may be asking - "are you collecting my data without my consent?"
-            
-            the answer is simply, no.
+            check out this [post by Streamlit](https://docs.streamlit.io/knowledge-base/using-streamlit/where-file-uploader-store-when-deleted) that explains what happens to files that are uploaded
 
-            after you close this tab or remove your uploaded file, all information is gone and not kept in any way.
-
-            this [post by Streamlit](https://docs.streamlit.io/knowledge-base/using-streamlit/where-file-uploader-store-when-deleted) explains this as well
+            just want you to know that any file uploaded is not saved in any way and I am not able to collect any data from it
             """)
         left.subheader("how to")
         how_to = st.expander("steps to get your own data: ")
         how_to.write("""
-        [click on this link](https://www.linkedin.com/mypreferences/d/download-my-data) and select to export your connections data
+        [click on this link](https://www.linkedin.com/mypreferences/d/download-my-data) and select "request archive" of your data
 
-        you will receive an email with a zipped folder containing your connections data
+        in about 10 minutes you will receive an email that will link you back to that page and be able to download your data
 
-        extract the file and then you will be ready to visualize your connections!  
+        after that, just extract the file from the folder and you will be ready to visualize your connections!  
         """)
         how_to.image(instructions, width=500, use_column_width='auto', output_format='PNG')
     with right:
         st.subheader("")
         right.write("")
-        dataset = st.selectbox('choose a sample dataset:', ('diego','alberto'))
+        dataset = st.selectbox('choose a sample dataset ', ('diego','alberto'))
         csv_file = st.file_uploader('upload your file here 👇 ')
-        tree_height = st.slider("change the height of the visual 🔍", 500, 2000, 1000)
         df = load_data(csv_file, dataset)
-        treemap = treemap_px(df, tree_height)
+        tree_height = st.slider("change the size of the visual 🔍", 500, 2000, 1000)
+        
+treemap = treemap_px(df, tree_height)
 
 st.write("##")        
 
