@@ -113,16 +113,26 @@ def polar_px(df):
 
 # \\\ Header /// #
 
+st.title("LinkedIn connections")
+
 with st.container():
-    st.title("LinkedIn connections")
-    st.subheader("the visual: ")
-    st.write("""
-    after finding out it was possible to export my LinkedIn connections data, I immediately started to brainstorm a project to visualize the data
+    left, right = st.columns((3, 2))
+    with left:
+        st.subheader("the visual: ")
+        st.write("""
+        after finding out it was possible to export data of my LinkedIn connections, I immediately started to brainstorm an idea for a project to visualize the data
 
-    my goal was to make interactive by applying some of Streamlit's features such as the slider and file uploader widgets
-
-    big thanks to my brother, [Alberto Reyes](https://www.linkedin.com/in/albertoreyes2021/), for letting me use his data and connect with me on my [LinkedIn](https://www.linkedin.com/in/diego-reyes10/)
-    """)
+        my goal was to make this app interactive and allow users to create their own visualization by using their data
+        """)
+    with right:
+        st.subheader("couple notes:")
+        st.write("""
+        big thanks to my brother, [Alberto Reyes](https://www.linkedin.com/in/albertoreyes2021/), for letting me use his data 
+        
+        and want to give credit to [Isaac D. Tucker-Rasbury](https://www.linkedin.com/in/tuckerrasbury/) for his [project](https://github.com/TuckerRasbury/02_VisualizingMyLinkedinNetwork) that I took inspiration from
+        
+        if you have any feedback or questions, feel free to reach out to me on my [LinkedIn](https://www.linkedin.com/in/diego-reyes10/) page!
+        """)
 
 with st.container():
     left, right = st.columns((3, 2))
@@ -130,18 +140,18 @@ with st.container():
         st.subheader("important notice")
         notice = st.expander("about the uploaded data:")
         notice.write(""" 
-            check out this [post by Streamlit](https://docs.streamlit.io/knowledge-base/using-streamlit/where-file-uploader-store-when-deleted) that explains what happens to files that are uploaded
+            check out this [post by Streamlit](https://docs.streamlit.io/knowledge-base/using-streamlit/where-file-uploader-store-when-deleted) that explains how any file that is uploaded is not stored in any way
 
-            just want you to know that any file uploaded is not saved in any way and I am not able to collect any data from it
+            I wanted to bring this up to reassure everyone that no information is being collected without user consent
             """)
-        left.subheader("how to")
-        how_to = st.expander("steps to get your own data: ")
+        left.subheader("how to get your own data")
+        how_to = st.expander("steps: ")
         how_to.write("""
         [click on this link](https://www.linkedin.com/mypreferences/d/download-my-data) and select "request archive" of your data
 
-        in about 10 minutes you will receive an email that will link you back to that page and be able to download your data
+        it should take about 10 minutes for you to receive an email with a link to download your data
 
-        after that, just extract the file from the folder and you will be ready to visualize your connections!  
+        after that, just extract the file from the folder and you are ready to visualize your connections!  
         """)
         how_to.image(instructions, width=500, use_column_width='auto', output_format='PNG')
     with right:
