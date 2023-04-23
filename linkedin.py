@@ -142,7 +142,7 @@ with st.container():
         notice.write(""" 
             check out this [post by Streamlit](https://docs.streamlit.io/knowledge-base/using-streamlit/where-file-uploader-store-when-deleted) that explains how any file that is uploaded is not stored in any way
 
-            I wanted to bring this up to reassure everyone that no information is being collected without user consent
+            I wanted to bring this up to reassure that no information is being collected without user consent
             """)
         left.subheader("how to get your own data")
         how_to = st.expander("steps: ")
